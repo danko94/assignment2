@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include "myBank.h"
 
-#define EXTERN
-
 int main(){
 	createBank();
 

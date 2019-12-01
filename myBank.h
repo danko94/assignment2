@@ -9,10 +9,9 @@
 #define DEPOSIT 1
 #define WITHDRAWAL -1
 
-#ifndef EXTERN
-#define EXTERN
+#ifndef BANK_DEF
 extern double bank[BANKACCOUNTS][2]; 
-#endif
+#endif /* BANK_DEF */
 
 //bank init
 void createBank();
@@ -20,7 +19,7 @@ void createBank();
 //show options
 void printOptions();
 
-//Transactions O,B,...
+//Transactions O,B,D,...
 void openAccount();
 void checkBalance();
 void makeDeposit();
@@ -30,12 +29,12 @@ void printAccounts();
 void addInterest();
 
 //help functions
-float getBalance(int);
-float updateBalance(int, float);
-int getOffset(int accNumber);
+double getBalance(int);
+double updateBalance(int, double);
+int getOffset(int);
 int getAccNumber();
-int isClosed(int accNumber);
-double getAmount(int DepositOrWithdrawal);
+int isClosed(int);
+double getAmount(int);
 
 
 

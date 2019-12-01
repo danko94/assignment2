@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include "myBank.h"
 
+#define DEBUG
+#define BANK_DEF //bank array is defined here
+
 double bank[BANKACCOUNTS][2];
 
 void createBank()
@@ -22,7 +25,7 @@ void openAccount()
 { //'O' - action
 
   int accNumber = -1;
-  float depositAmount = 0;
+  double depositAmount = 0;
   for (int i = 0; i < BANKACCOUNTS; i++)
   {
     if (bank[i][STATUS] == CLOSED)
@@ -67,7 +70,7 @@ void makeDeposit()
 { //'D' - action
 
   int accNumber = getAccNumber();
-  float depositAmount = 0;
+  double depositAmount = 0;
 
   if (isClosed(accNumber))
   {
@@ -87,12 +90,12 @@ void makeWithdrawal()
 
   int accNumber = getAccNumber();
   double currentBalance = getBalance(accNumber);
-  if (currentBalance==0)  
+  if (currentBalance == 0)
   {
     printf("Withdrawal not possible! You don't have any money in your account! \n");
     return;
   }
-  
+
   double withdrawalAmount = currentBalance + 1;
 
   if (isClosed(accNumber))
@@ -109,7 +112,6 @@ void makeWithdrawal()
       {
         printf("You don't have enough money in your bank account!(Current balance: %.2lf) \nEnter valid amount:\n", currentBalance);
       }
-      
     }
     printf("Your new balance is %.2lf!\n", updateBalance(accNumber, -withdrawalAmount));
     return;
@@ -142,7 +144,10 @@ void printAccounts()
     int accNumber = 901 + i;
     if (bank[i][STATUS] == OPENED)
     {
-      printf("Account no. %d, Balance: %.2f\n", accNumber, getBalance(accNumber));
+      printf("Account no. %d, Balance: %.2lf\n", accNumber, getBalance(accNumber));
+#ifdef DEBUG
+      printf("Account no. %d, Balance: %lf\n", accNumber, getBalance(accNumber)); //print actual number that is stored in array
+#endif
     }
   }
 
@@ -158,9 +163,9 @@ void addInterest()
   for (;;)
   {
     scanf(" %lf", &interestRate);
-    if ((interestRate>=0))
+    if ((interestRate >= 0))
     {
-      interestRate = 1 + (interestRate / 100);  // example: 5% -> 1.05
+      interestRate = 1 + (interestRate / 100); // example: 5% -> 1.05
       for (int i = 0; i < BANKACCOUNTS; i++)
       {
         if (bank[i][OPENED])
@@ -183,24 +188,23 @@ void addInterest()
  * added functionality, print transaction options
  */
 
-  void printOptions()
-  //H - action
-  {
-    printf("Open account: \t\t O \nCheck Balance: \t\t B \nMake Deposit: \t\t D \nMake Withdrawal: \t W \nClose Account: \t\t C \nPrint accounts: \t P \nAdd Interest: \t\t I \nShow options: \t\t H \n\nExit: \t\t\t E \n");
-    return;
-  }
+void printOptions()
+//H - action
+{
+  printf("Open account: \t\t O \nCheck Balance: \t\t B \nMake Deposit: \t\t D \nMake Withdrawal: \t W \nClose Account: \t\t C \nPrint accounts: \t P \nAdd Interest: \t\t I \nShow options: \t\t H \n\nExit: \t\t\t E \n");
+  return;
+}
 
 /**
   * secondary functions
   */
 
-int getOffset(int accNumber)
+int getOffset(int accNumber) //get offset for bank array
 {
-
   return accNumber - 901;
 }
 
-int getAccNumber()
+int getAccNumber() //get valid account number from user
 {
 
   int accNumber = 0;
@@ -218,24 +222,20 @@ int getAccNumber()
   return accNumber;
 }
 
-float getBalance(int accNumber)
+double getBalance(int accNumber)
 {
-
-  int accountOffset = getOffset(accNumber);
-  return bank[accountOffset][BALANCE];
+  return bank[getOffset(accNumber)][BALANCE];
 }
 
-float updateBalance(int accNumber, float updateAmount)
+double updateBalance(int accNumber, double updateAmount) //update balance in bank array and return the updated balance
 {
-
-  int accountOffset = getOffset(accNumber);
-  float balance = getBalance(accNumber);
-  float newBalance = balance + updateAmount;
-  bank[accountOffset][BALANCE] = newBalance;
+  double balance = getBalance(accNumber);
+  double newBalance = balance + updateAmount;
+  bank[getOffset(accNumber)][BALANCE] = newBalance;
   return newBalance;
 }
 
-int isClosed(int accNumber)
+int isClosed(int accNumber) //check if account is closed, if yes print message and return "true"(1), otherwise "false"(0)
 {
 
   int accountOffset = getOffset(accNumber);
@@ -250,7 +250,7 @@ int isClosed(int accNumber)
   }
 }
 
-double getAmount(int DepositOrWithdrawal)
+double getAmount(int DepositOrWithdrawal) //get valid Deposit/Withdrawal amount from user + convert to 2 decimal places
 {
   double amount = 0;
 
@@ -274,5 +274,20 @@ double getAmount(int DepositOrWithdrawal)
       }
     }
   }
+
+  amount *= 1000; //converts and rounds to 2 decimals after floating point
+  int amountInt = (int)amount;
+  int roundThreshhold = amountInt % 10;
+
+  if (roundThreshhold >= 5)
+  {
+    amountInt += (10 - roundThreshhold);
+  }
+  else
+  {
+    amountInt -= roundThreshhold;
+  }
+  amount = amountInt / (double)1000;
+
   return amount;
 }
